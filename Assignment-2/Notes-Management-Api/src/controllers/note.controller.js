@@ -2,27 +2,13 @@ const Note = require("../models/note.model");
 
 exports.createNote = async (req, res) => {
   try {
-    const { title, content, category, isPinned } = req.body;
 
-    if (!title || !content) {
-      return res.status(400).json({
-        success: false,
-        message: "Title and content are required",
-        data: null,
-      });
-    }
-
-    const note = await Note.create({
-      title,
-      content,
-      category,
-      isPinned,
-    });
+    const note = await Note.create(req.body);
 
     res.status(201).json({
       success: true,
       message: "Note created successfully",
-      data: note,
+      data: note
     });
 
   } catch (error) {
@@ -30,7 +16,8 @@ exports.createNote = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message,
-      data: null,
+      data: null
     });
+
   }
 };
