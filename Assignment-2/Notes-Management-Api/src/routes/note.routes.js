@@ -1,7 +1,32 @@
-const router = require("express").Router();
+const router=require("express").Router();
 
-const noteController = require("../controllers/note.controller");
+const note=require("../controllers/note.controller");
 
-router.post("/", noteController.createNote);
+router.post("/bulk",note.createBulkNotes);
+router.delete("/bulk",note.deleteBulkNotes);
 
-module.exports = router;
+router.get("/category/:category",note.getNotesByCategory);
+router.get("/status/:isPinned",note.getNotesByStatus);
+
+router.get("/filter",note.filterNotes);
+router.get("/filter/date-range",note.filterByDateRange);
+
+router.get("/paginate",note.paginateNotes);
+
+router.get("/sort",note.sortNotes);
+
+router.post("/",note.createNote);
+
+router.get("/",note.getAllNotes);
+
+router.get("/:id/summary",note.getNoteSummary);
+
+router.get("/:id",note.getNoteById);
+
+router.put("/:id",note.replaceNote);
+
+router.patch("/:id",note.updateNote);
+
+router.delete("/:id",note.deleteNote);
+
+module.exports=router;
