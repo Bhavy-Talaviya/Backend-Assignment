@@ -29,4 +29,18 @@ router.patch("/:id",note.updateNote);
 
 router.delete("/:id",note.deleteNote);
 
+router.get("/filter/pinned", note.getPinnedNotes);
+
+router.get("/filter/category", note.filterByCategory);
+
+router.get(
+"/paginate/category/:category",
+note.paginateByCategory
+);
+
+router.get(
+"/sort/pinned",
+note.sortPinnedNotes
+);
+
 module.exports=router;

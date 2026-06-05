@@ -463,3 +463,177 @@ exports.sortNotes = async (req, res) => {
     });
   }
 };
+
+// FILTER PINNED NOTES
+exports.getPinnedNotes = async (req, res) => {
+  try {
+    const filter = {
+      isPinned: true,
+    };
+
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+
+    const notes = await Note.find(filter);
+
+    res.status(200).json({
+      success: true,
+      message: "Pinned notes fetched successfully",
+      count: notes.length,
+      data: notes,
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      data: null,
+    });
+
+  }
+};
+
+
+// FILTER CATEGORY QUERY PARAM
+exports.filterByCategory = async (req, res) => {
+  try {
+
+    const { name } = req.query;
+
+    if (!name) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Query param 'name' is required",
+        data: null,
+      });
+
+    }
+
+    const notes = await Note.find({
+      category: name,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Notes filtered by category: ${name}`,
+      count: notes.length,
+      data: notes,
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      data: null,
+    });
+
+  }
+};
+
+
+// PAGINATION BY CATEGORY
+exports.paginateByCategory = async (req, res) => {
+  try {
+
+    const page = parseInt(req.query.page) || 1;
+
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const filter = {
+      category: req.params.category,
+    };
+
+    const total = await Note.countDocuments(filter);
+
+    const notes = await Note.find(filter)
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.status(200).json({
+      success: true,
+      message: `Notes fetched for category: ${req.params.category}`,
+      data: notes,
+
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      data: null,
+    });
+
+  }
+};
+
+
+// SORT PINNED NOTES
+exports.sortPinnedNotes = async (req, res) => {
+  try {
+
+    const allowed = [
+      "title",
+      "createdAt",
+      "updatedAt",
+      "category",
+    ];
+
+    const sortBy =
+      req.query.sortBy || "createdAt";
+
+    if (!allowed.includes(sortBy)) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Invalid sortBy",
+        data: null,
+      });
+
+    }
+
+    const order =
+      req.query.order === "asc"
+        ? 1
+        : -1;
+
+    const notes = await Note.find({
+      isPinned: true,
+    }).sort({
+      [sortBy]: order,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Pinned notes sorted by ${sortBy}`,
+      count: notes.length,
+      data: notes,
+    });
+
+  } catch (err) {
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      data: null,
+    });
+
+  }
+};
